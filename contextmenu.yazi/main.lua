@@ -90,6 +90,18 @@ function M:setup()
 				ya.emit("reveal", { self._file.url })
 				open_at(event.x, event.y)
 			end
+		elseif event.is_left then
+			if up then return end
+			-- Yazi has no double-click event: detect two quick left clicks on the same file.
+			local now, url = ya.time(), tostring(self._file.url)
+			local last = Menu.last
+			Menu.last = { t = now, url = url }
+			if last and last.url == url and now - last.t < 0.4 then
+				Menu.last = nil
+				ya.emit("reveal", { self._file.url })
+				return ya.emit("open", {})
+			end
+			return left_click(self, event, up)
 		elseif left_click then
 			return left_click(self, event, up)
 		end
